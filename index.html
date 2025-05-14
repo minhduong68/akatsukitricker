@@ -2,57 +2,59 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>FB UID Checker Ẩn</title>
+  <title>Check UID Facebook</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
       padding-top: 100px;
     }
     input, button {
       padding: 10px;
-      margin: 10px;
       font-size: 16px;
+    }
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h2>🔍 Check UID Facebook (Ẩn tab)</h2>
+  <h2>🔎 Check UID Facebook (ẩn tab)</h2>
   <input type="text" id="uidInput" placeholder="Nhập UID Facebook">
   <button onclick="checkUID()">Check UID</button>
-  <p id="result"></p>
+  <div id="result"></div>
 
   <script>
     function checkUID() {
-      const uid = document.getElementById('uidInput').value.trim();
-      const result = document.getElementById('result');
+      const uid = document.getElementById("uidInput").value.trim();
+      const resultDiv = document.getElementById("result");
+
       if (!uid) {
-        alert('Vui lòng nhập UID');
+        alert("Vui lòng nhập UID.");
         return;
       }
 
-      // Mở tab mới
-      const fbTab = window.open('', '_blank');
+      // Mở tab mới (ẩn khỏi người dùng - không chuyển hướng trang chính)
+      const fbTab = window.open("about:blank", "_blank");
 
-      // Nếu bị chặn popup
       if (!fbTab) {
-        alert("Trình duyệt đã chặn popup. Vui lòng cho phép!");
+        resultDiv.innerText = "⚠️ Trình duyệt đã chặn popup.";
         return;
       }
 
-      // Load FB trang cá nhân vào tab
+      // Điều hướng tab mới đến Facebook
       fbTab.location.href = `https://www.facebook.com/${uid}`;
 
-      // Chờ khoảng 2.5s rồi check (Facebook thường load nhanh)
+      // Sau 2.5 giây, cố gắng đóng tab (giống "ẩn")
       setTimeout(() => {
         try {
-          // Đọc nội dung tab (sẽ bị chặn bởi CORS nên chỉ dùng để auto đóng)
-          fbTab.close();
-          result.innerText = `✅ UID ${uid} có vẻ LIVE (không báo lỗi)`;
+          fbTab.close(); // cố gắng đóng tab
+          resultDiv.innerText = `✅ UID ${uid} có thể LIVE (trang FB tồn tại)`;
         } catch (e) {
-          result.innerText = `❌ UID ${uid} DIE hoặc bị chặn truy cập`;
+          resultDiv.innerText = `❌ UID ${uid} có thể DIE hoặc bị chặn truy cập`;
         }
-      }, 2500); // thời gian delay auto đóng tab
+      }, 2500);
     }
   </script>
 </body>
