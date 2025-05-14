@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>FB UID Checker & Theo Dõi</title>
+  <style>
+    body { font-family: Arial; background: #f0f2f5; margin: 20px; }
+    h2 { color: #1877f2; }
+    input, button { padding: 8px; margin: 5px 0; width: 100%; }
+    .section { background: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px #ccc; }
+    #results, #list { margin-top: 10px; }
+    .uid-item { padding: 10px; border-bottom: 1px solid #eee; }
+    .live { color: green; font-weight: bold; }
+    .die { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h2>✅ Kiểm tra & Theo dõi UID Facebook</h2>
+
+  <div class="section">
+    <h3>🔍 Check nhanh UID hoặc Link Facebook</h3>
+    <input id="quickInput" placeholder="Nhập UID hoặc link Facebook">
+    <button onclick="quickCheck()">Kiểm tra</button>
+    <div id="results"></div>
+  </div>
+
+  <div class="section">
+    <h3>📌 Lưu UID để theo dõi</h3>
+    <input id="trackInput" placeholder="Nhập UID hoặc link Facebook">
+    <input id="trackName" placeholder="Đặt tên cho UID (VD: A, Clone 1)">
+    <button onclick="saveUID()">Lưu & Theo dõi</button>
+    <div id="trackMsg"></div>
+  </div>
+
+  <div class="section">
+    <h3>📋 Danh sách đang theo dõi</h3>
+    <div id="list"></div>
+  </div>
+
+  <script>
+    const checkLive = async (uid) => {
+      try {
+        const res = await fetch("https://graph.facebook.com/" + uid + "?fields=id&method=get&format=json");
+        return res.status === 200;
+      } catch {
+        return false;
+      }
+    };
+
+    const extractUID = (input) => {
+      input = input.trim();
+      if (/^\d+$/.test(input)) return input;
+      const match = input.match(/facebook\.com\/(?:profile\.php\?id=)?([\w.]+)/i);
+      if (match) return match[1];
+      return input;
+    };
+
+    const quickCheck = async () => {
+      const input = document.getElementById("quickInput").value;
+      const uid = extractUID(input);
+      const isLive = await checkLive(uid);
+      document.getElementById("results").innerHTML = isLive
+        ? `<p class='live'>✅ UID ${uid} LIVE</p>`
+        : `<p class='die'>❌ UID ${uid} DIE</p>`;
+    };
+
+    const saveUID = async () => {
+      const input = document.getElementById("trackInput").value;
+      const name = document.getElementById("trackName").value.trim();
+      const uid = extractUID(input);
+      if (!uid || !name) return alert("Vui lòng nhập đủ UID và tên gán!");
+
+      const isLive = await checkLive(uid);
+      if (!isLive) {
+        document.getElementById("trackMsg").innerHTML = `<p class="die">❌ UID này không tồn tại. Không lưu.</p>`;
+        return;
+      }
+
+      let list = JSON.parse(localStorage.getItem("uidList") || "[]");
+      if (list.find(item => item.uid === uid)) {
+        document.getElementById("trackMsg").innerHTML = `<p class="live">✅ UID đã có trong danh sách.</p>`;
+        return;
+      }
+
+      list.push({ uid, name, status: "LIVE" });
+      localStorage.setItem("uidList", JSON.stringify(list));
+      document.getElementById("trackMsg").innerHTML = `<p class="live">✅ Đã lưu UID & bắt đầu theo dõi.</p>`;
+      renderList();
+    };
+
+    const renderList = () => {
+      let list = JSON.parse(localStorage.getItem("uidList") || "[]");
+      const box = document.getElementById("list");
+      box.innerHTML = "";
+      if (list.length === 0) {
+        box.innerHTML = "<i>Chưa theo dõi UID nào.</i>";
+        return;
+      }
+      list.forEach(item => {
+        box.innerHTML += `
+          <div class="uid-item">
+            <b>${item.name}</b> - ${item.uid} 
+            <span class="${item.status === 'LIVE' ? 'live' : 'die'}">[${item.status}]</span>
+          </div>`;
+      });
+    };
+
+    const autoCheck = async () => {
+      let list = JSON.parse(localStorage.getItem("uidList") || "[]");
+      let changed = false;
+      for (let item of list) {
+        if (item.status === "DIE") continue;
+        const isLive = await checkLive(item.uid);
+        const newStatus = isLive ? "LIVE" : "DIE";
+        if (newStatus !== item.status) {
+          alert(`⚠️ UID [${item.name}] đã chuyển từ ${item.status} → ${newStatus}`);
+          item.status = newStatus;
+          changed = true;
+        }
+      }
+      if (changed) {
+        localStorage.setItem("uidList", JSON.stringify(list));
+        renderList();
+      }
+    };
+
+    // Khởi động
+    renderList();
+    setInterval(autoCheck, 60000); // mỗi 60 giây
+  </script>
+
+</body>
+</html>
