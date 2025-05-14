@@ -1,60 +1,61 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Check UID Facebook</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding-top: 100px;
-    }
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-    }
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
-    }
-  </style>
+  <title>Check UID Facebook liên tục</title>
 </head>
 <body>
-  <h2>🔎 Check UID Facebook (ẩn tab)</h2>
-  <input type="text" id="uidInput" placeholder="Nhập UID Facebook">
-  <button onclick="checkUID()">Check UID</button>
-  <div id="result"></div>
+  <h3>✅ Tool Check UID Facebook (tự động)</h3>
+  <textarea id="uidList" placeholder="Nhập danh sách UID, mỗi dòng 1 UID" rows="10" cols="40"></textarea><br>
+  <button onclick="startChecking()">Bắt đầu kiểm tra</button>
+  <ul id="resultList"></ul>
 
   <script>
-    function checkUID() {
-      const uid = document.getElementById("uidInput").value.trim();
-      const resultDiv = document.getElementById("result");
+    let uids = [];
+    let currentIndex = 0;
 
-      if (!uid) {
-        alert("Vui lòng nhập UID.");
+    function startChecking() {
+      const input = document.getElementById("uidList").value.trim();
+      if (!input) return alert("Vui lòng nhập danh sách UID.");
+      uids = input.split("\n").map(x => x.trim()).filter(Boolean);
+      currentIndex = 0;
+      checkNextUID();
+    }
+
+    function checkNextUID() {
+      if (currentIndex >= uids.length) {
+        alert("✅ Đã kiểm tra xong toàn bộ UID.");
         return;
       }
 
-      // Mở tab mới (ẩn khỏi người dùng - không chuyển hướng trang chính)
-      const fbTab = window.open("about:blank", "_blank");
+      const uid = uids[currentIndex];
+      const tab = window.open("", "_blank");
 
-      if (!fbTab) {
-        resultDiv.innerText = "⚠️ Trình duyệt đã chặn popup.";
+      if (!tab) {
+        alert("⚠️ Trình duyệt đã chặn popup. Vui lòng cho phép.");
         return;
       }
 
-      // Điều hướng tab mới đến Facebook
-      fbTab.location.href = `https://www.facebook.com/${uid}`;
+      tab.location.href = `https://www.facebook.com/${uid}`;
 
-      // Sau 2.5 giây, cố gắng đóng tab (giống "ẩn")
       setTimeout(() => {
         try {
-          fbTab.close(); // cố gắng đóng tab
-          resultDiv.innerText = `✅ UID ${uid} có thể LIVE (trang FB tồn tại)`;
+          tab.close();
+          logResult(uid, "✅ Có thể LIVE");
         } catch (e) {
-          resultDiv.innerText = `❌ UID ${uid} có thể DIE hoặc bị chặn truy cập`;
+          logResult(uid, "❌ DIE hoặc bị chặn");
         }
-      }, 2500);
+
+        currentIndex++;
+        setTimeout(checkNextUID, 2000); // delay 2s trước khi check tiếp
+      }, 3000); // đợi 3s trước khi đóng
+    }
+
+    function logResult(uid, status) {
+      const ul = document.getElementById("resultList");
+      const li = document.createElement("li");
+      li.textContent = `${uid} → ${status}`;
+      ul.appendChild(li);
     }
   </script>
 </body>
