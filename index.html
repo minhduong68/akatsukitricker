@@ -3,21 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiểm Tra UID Live Die</title>
+    <title>Kiểm Tra Trạng Thái Facebook</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
         }
-        iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
+        #status {
+            margin-top: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <h1>Kiểm Tra UID Live/Die</h1>
-    <iframe src="https://timuid.com/Tool/CheckLiveUid" title="Check Live Die UID"></iframe>
+    <h1>Kiểm Tra UID Facebook Live/Die</h1>
+    <input type="text" id="uid" placeholder="Nhập UID hoặc Link Facebook" />
+    <button onclick="checkStatus()">Kiểm Tra</button>
+
+    <div id="status"></div>
+
+    <!-- Nhúng iframe để kiểm tra -->
+    <div id="iframe-container" style="display: none;">
+        <iframe src="https://timuid.com/Tool/CheckLiveUid" title="Check Live Die UID" width="100%" height="600px"></iframe>
+    </div>
+
+    <script>
+        function checkStatus() {
+            const uid = document.getElementById('uid').value.trim();
+            if (!uid) {
+                alert("Vui lòng nhập UID hoặc Link Facebook");
+                return;
+            }
+
+            // Mở iframe để kiểm tra trạng thái live/die
+            document.getElementById('iframe-container').style.display = 'block';
+
+            // Gửi UID qua iframe hoặc sử dụng API
+            // Hiện tại chỉ có thể làm theo kiểu đơn giản như vậy do không có API công khai
+        }
+    </script>
 </body>
 </html>
