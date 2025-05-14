@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kiểm tra UID Facebook Ẩn</title>
+  <title>Kiểm Tra UID Facebook</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -59,61 +59,44 @@
     .die {
       color: red;
     }
-
-    /* Ẩn iframe */
-    iframe {
-      display: none;
-    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h1>✅ Kiểm tra UID Facebook Ẩn</h1>
+    <h1>✅ Kiểm Tra UID Facebook</h1>
     <input id="uidInput" type="text" placeholder="Nhập UID hoặc link Facebook" />
-    <button onclick="checkUID()">Kiểm tra</button>
+    <button onclick="checkStatus()">Kiểm tra</button>
     <div id="result" class="status"></div>
   </div>
 
-  <!-- Iframe ẩn để kiểm tra trạng thái Facebook -->
-  <iframe id="fbIframe" src="" onload="checkIframeStatus()" width="0" height="0"></iframe>
-
   <script>
-    function checkUID() {
-      const uid = document.getElementById("uidInput").value.trim();
+    async function checkStatus() {
+      const uid = document.getElementById('uidInput').value.trim();
+
       if (!uid) {
-        alert("Vui lòng nhập UID hoặc link Facebook!");
+        alert('Vui lòng nhập UID hoặc link Facebook!');
         return;
       }
 
-      // Kiểm tra xem người dùng nhập UID hay link Facebook
-      const uidPattern = /^[0-9]+$/; // Kiểm tra xem có phải UID (số) không
-      const isUID = uidPattern.test(uid);
+      document.getElementById('result').innerHTML = 'Đang kiểm tra...';
 
-      // Nếu không phải UID thì lấy link Facebook
-      const fbUrl = isUID ? `https://www.facebook.com/${uid}` : uid;
+      try {
+        // Gửi yêu cầu tới PHP để kiểm tra trạng thái link Facebook
+        const response = await fetch(`check-status.php?uid=${encodeURIComponent(uid)}`);
+        const data = await response.json();
 
-      // Cập nhật iframe để tải trang Facebook
-      document.getElementById("fbIframe").src = fbUrl;
-
-      // Ẩn kết quả cho người dùng trong khi kiểm tra
-      document.getElementById("result").innerHTML = "Đang kiểm tra trạng thái...";
-      document.getElementById("result").classList.remove("live", "die");
-    }
-
-    function checkIframeStatus() {
-      const iframe = document.getElementById("fbIframe");
-      const iframeContent = iframe.contentWindow.document;
-
-      // Kiểm tra nếu trang được tải thành công, tức là Facebook tồn tại
-      if (iframeContent && iframeContent.body.innerHTML.includes("facebook.com")) {
-        document.getElementById("result").innerHTML = "✅ Facebook đang hoạt động (LIVE)";
-        document.getElementById("result").classList.add("live");
-        document.getElementById("result").classList.remove("die");
-      } else {
-        document.getElementById("result").innerHTML = "❌ Facebook không tồn tại (DIE)";
-        document.getElementById("result").classList.add("die");
-        document.getElementById("result").classList.remove("live");
+        if (data.status === 'LIVE') {
+          document.getElementById('result').innerHTML = '✅ Facebook đang hoạt động (LIVE)';
+          document.getElementById('result').classList.add('live');
+          document.getElementById('result').classList.remove('die');
+        } else {
+          document.getElementById('result').innerHTML = '❌ Facebook không tồn tại (DIE)';
+          document.getElementById('result').classList.add('die');
+          document.getElementById('result').classList.remove('live');
+        }
+      } catch (error) {
+        document.getElementById('result').innerHTML = '❌ Lỗi khi kiểm tra!';
       }
     }
   </script>
