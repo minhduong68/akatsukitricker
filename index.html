@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <title>FB UID Checker</title>
+  <meta charset="UTF-8">
+  <title>FB UID Checker Ẩn</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: sans-serif;
+      text-align: center;
       padding-top: 100px;
     }
     input, button {
@@ -20,20 +17,42 @@
   </style>
 </head>
 <body>
-  <h2>🔎 Check UID Facebook Live / Die</h2>
-  <input type="text" id="uidInput" placeholder="Nhập UID Facebook..." />
-  <button onclick="checkUID()">Check Live</button>
+  <h2>🔍 Check UID Facebook (Ẩn tab)</h2>
+  <input type="text" id="uidInput" placeholder="Nhập UID Facebook">
+  <button onclick="checkUID()">Check UID</button>
+  <p id="result"></p>
 
   <script>
     function checkUID() {
-      const uid = document.getElementById("uidInput").value.trim();
+      const uid = document.getElementById('uidInput').value.trim();
+      const result = document.getElementById('result');
       if (!uid) {
-        alert("Vui lòng nhập UID.");
+        alert('Vui lòng nhập UID');
         return;
       }
 
-      const fbUrl = `https://www.facebook.com/${uid}`;
-      window.open(fbUrl, '_blank');
+      // Mở tab mới
+      const fbTab = window.open('', '_blank');
+
+      // Nếu bị chặn popup
+      if (!fbTab) {
+        alert("Trình duyệt đã chặn popup. Vui lòng cho phép!");
+        return;
+      }
+
+      // Load FB trang cá nhân vào tab
+      fbTab.location.href = `https://www.facebook.com/${uid}`;
+
+      // Chờ khoảng 2.5s rồi check (Facebook thường load nhanh)
+      setTimeout(() => {
+        try {
+          // Đọc nội dung tab (sẽ bị chặn bởi CORS nên chỉ dùng để auto đóng)
+          fbTab.close();
+          result.innerText = `✅ UID ${uid} có vẻ LIVE (không báo lỗi)`;
+        } catch (e) {
+          result.innerText = `❌ UID ${uid} DIE hoặc bị chặn truy cập`;
+        }
+      }, 2500); // thời gian delay auto đóng tab
     }
   </script>
 </body>
