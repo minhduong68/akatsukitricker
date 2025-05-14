@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>FB UID Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 100px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔎 Check UID Facebook Live / Die</h2>
+  <input type="text" id="uidInput" placeholder="Nhập UID Facebook..." />
+  <button onclick="checkUID()">Check Live</button>
+
+  <script>
+    function checkUID() {
+      const uid = document.getElementById("uidInput").value.trim();
+      if (!uid) {
+        alert("Vui lòng nhập UID.");
+        return;
+      }
+
+      const fbUrl = `https://www.facebook.com/${uid}`;
+      window.open(fbUrl, '_blank');
+    }
+  </script>
+</body>
+</html>
