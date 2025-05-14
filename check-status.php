@@ -13,8 +13,15 @@ if (!filter_var($uid, FILTER_VALIDATE_URL)) {
   $uid = 'https://www.facebook.com/' . $uid;
 }
 
-// Gửi yêu cầu kiểm tra trang Facebook
-$response = @file_get_contents($uid);
+// Cấu hình curl để gửi yêu cầu HTTP
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $uid);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // Theo dõi các chuyển hướng (nếu có)
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Bỏ qua kiểm tra SSL (nếu có vấn đề với SSL)
+
+$response = curl_exec($ch);
+curl_close($ch);
 
 // Kiểm tra trạng thái
 if ($response !== false) {
